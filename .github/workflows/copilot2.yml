@@ -51,7 +51,7 @@ jobs:
           OTHER_CFLAGS="-fembed-bitcode"
 
     - name: Upload Build Artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v3.1.2
       with:
         name: corecrypto-build
         path: |
