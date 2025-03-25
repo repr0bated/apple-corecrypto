@@ -1,4 +1,4 @@
-name: CoreCrypto Build and Test
+name: CoreCrypto Build
 
 on:
   push:
@@ -7,120 +7,76 @@ on:
     branches: [ main, develop ]
 
 jobs:
-  build-and-test-linux:
-    runs-on: ubuntu-latest
+  build:
+    runs-on: macos-latest
     
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
     
-    - name: Set up C/C++ Build Environment
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y \
-          build-essential \
-          cmake \
-          clang \
-          llvm \
-          gcc \
-          g++ \
-          make \
-          autoconf \
-          automake \
-          libtool \
-          pkg-config
+    - name: Set up Xcode
+      uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: latest
     
-    - name: Install Dependencies
-      run: |
-        # Add any specific dependencies for CoreCrypto
-        # This might include cryptography-related libraries
-        sudo apt-get install -y \
-          libssl-dev \
-          libcrypto++-dev
+    - name: List Available Simulators
+      run: xcrun simctl list devices
     
-    - name: Configure Build
+    - name: Build CoreCrypto
       run: |
         cd apple-corecrypto
-        
-        # Generate build files
-        # Adjust configuration as needed for your project
-        cmake -B build \
-          -DCMAKE_BUILD_TYPE=Debug \
-          -DCMAKE_C_COMPILER=clang \
-          -DCMAKE_CXX_COMPILER=clang++
+        xcodebuild clean build \
+          -project corecrypto.xcodeproj \
+          -scheme corecrypto \
+          -sdk macosx \
+          -configuration Debug \
+          ARCHS="arm64 x86_64" \
+          VALID_ARCHS="arm64 x86_64" \
+          ONLY_ACTIVE_ARCH=NO \
+          MACOSX_DEPLOYMENT_TARGET=13.0 \
+          OTHER_CFLAGS="-fembed-bitcode"
     
-    - name: Build Project
+    - name: Build Dynamic Library
       run: |
         cd apple-corecrypto
-        cmake --build build --parallel
-    
-    - name: Run Tests
-      run: |
-        cd apple-corecrypto/build
-        # Run tests if available
-        ctest --output-on-failure
-    
-    - name: Static Analysis
-      run: |
-        # Run clang static analyzer
-        cd apple-corecrypto
-        scan-build cmake -B build-analysis \
-          -DCMAKE_BUILD_TYPE=Debug
-        scan-build cmake --build build-analysis
+        xcodebuild clean build \
+          -project corecrypto.xcodeproj \
+          -scheme corecrypto_dylib \
+          -sdk macosx \
+          -configuration Debug \
+          ARCHS="arm64 x86_64" \
+          VALID_ARCHS="arm64 x86_64" \
+          ONLY_ACTIVE_ARCH=NO \
+          MACOSX_DEPLOYMENT_TARGET=13.0 \
+          OTHER_CFLAGS="-fembed-bitcode"
     
     - name: Upload Build Artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: corecrypto-linux-build
+        name: corecrypto-build
         path: |
           apple-corecrypto/build
-          apple-corecrypto/build-analysis
+          apple-corecrypto/DerivedData
         retention-days: 5
 
-  cross-compilation:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        target: [arm64, x86_64]
+  static-analysis:
+    runs-on: macos-latest
     
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
     
-    - name: Set up Cross-Compilation Toolchain
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y \
-          gcc-multilib \
-          g++-multilib \
-          gcc-arm-linux-gnueabihf \
-          g++-arm-linux-gnueabihf \
-          gcc-aarch64-linux-gnu \
-          g++-aarch64-linux-gnu
+    - name: Set up Xcode
+      uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: latest
     
-    - name: Cross-Compile for ${{ matrix.target }}
-      env:
-        TARGET: ${{ matrix.target }}
+    - name: Run Xcode Analyze
       run: |
         cd apple-corecrypto
-        
-        if [ "$TARGET" == "arm64" ]; then
-          # Cross-compile for ARM64
-          cmake -B build-arm64 \
-            -DCMAKE_TOOLCHAIN_FILE=cmake/toolchains/arm64.cmake \
-            -DCMAKE_BUILD_TYPE=Debug
-          cmake --build build-arm64
-        else
-          # Cross-compile for x86_64
-          cmake -B build-x86_64 \
-            -DCMAKE_TOOLCHAIN_FILE=cmake/toolchains/x86_64.cmake \
-            -DCMAKE_BUILD_TYPE=Debug
-          cmake --build build-x86_64
-        fi
-    
-    - name: Upload Cross-Compiled Artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: corecrypto-${{ matrix.target }}-build
-        path: apple-corecrypto/build-${{ matrix.target }}
-        retention-days: 5
+        xcodebuild clean analyze \
+          -project corecrypto.xcodeproj \
+          -scheme corecrypto \
+          -sdk macosx \
+          ARCHS="arm64 x86_64" \
+          VALID_ARCHS="arm64 x86_64"
