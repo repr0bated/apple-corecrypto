@@ -15,7 +15,7 @@ jobs:
       uses: actions/checkout@v4
 
     - name: Set up Xcode
-      uses: maxim-lobanov/setup-xcode@<full_commit_sha>
+      uses: maxim-lobanov/setup-xcode@v1
       with:
         xcode-version: latest
 
@@ -51,7 +51,7 @@ jobs:
           OTHER_CFLAGS="-fembed-bitcode"
 
     - name: Upload Build Artifacts
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v3
       with:
         name: corecrypto-build
         path: |
@@ -67,7 +67,7 @@ jobs:
       uses: actions/checkout@v4
 
     - name: Set up Xcode
-      uses: maxim-lobanov/setup-xcode@<full_commit_sha>
+      uses: maxim-lobanov/setup-xcode@v1
       with:
         xcode-version: latest
 
