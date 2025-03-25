@@ -12,10 +12,10 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4  # Updated to use latest version
+      uses: actions/checkout@v4
 
     - name: Set up Xcode
-      uses: maxim-lobanov/setup-xcode@v2  # Updated to a newer version
+      uses: maxim-lobanov/setup-xcode@<full_commit_sha>
       with:
         xcode-version: latest
 
@@ -35,7 +35,7 @@ jobs:
           ONLY_ACTIVE_ARCH=NO \
           MACOSX_DEPLOYMENT_TARGET=13.0 \
           OTHER_CFLAGS="-fembed-bitcode"
-    
+
     - name: Build Dynamic Library
       run: |
         cd "${{ github.workspace }}"
@@ -49,9 +49,9 @@ jobs:
           ONLY_ACTIVE_ARCH=NO \
           MACOSX_DEPLOYMENT_TARGET=13.0 \
           OTHER_CFLAGS="-fembed-bitcode"
-    
+
     - name: Upload Build Artifacts
-      uses: actions/upload-artifact@v4  # Updated to use latest version
+      uses: actions/upload-artifact@v4
       with:
         name: corecrypto-build
         path: |
@@ -64,10 +64,10 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4  # Updated to use latest version
+      uses: actions/checkout@v4
 
     - name: Set up Xcode
-      uses: maxim-lobanov/setup-xcode@v2  # Updated to a newer version
+      uses: maxim-lobanov/setup-xcode@<full_commit_sha>
       with:
         xcode-version: latest
 
