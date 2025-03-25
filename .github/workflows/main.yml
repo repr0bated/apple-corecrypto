@@ -1,0 +1,35 @@
+name: Build CoreCrypto Test with Xcode
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Select Xcode Version
+        run: sudo xcode-select -s /Applications/Xcode_15.2.app # Adjust version as needed
+
+      - name: Configure CMake with Xcode's Clang
+        run: |
+          cmake -DCMAKE_C_COMPILER=/usr/bin/clang -DCMAKE_CXX_COMPILER=/usr/bin/clang++ .
+
+      - name: Build CoreCrypto Test
+        run: |
+          make clean
+          make corecrypto_test
+
+      - name: Upload Artifact
+        if: success() || failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: corecrypto-test-binary
+          path: corecrypto_test
