@@ -2,9 +2,9 @@ name: CoreCrypto Builds
 
 on:
   push:
-    branches: [ main, repr0bate ]
+    branches: [ main, repr0bated ]
   pull_request:
-    branches: [ main, repr0bate ]
+    branches: [ main, repr0bated ]
 
 jobs:
   build:
