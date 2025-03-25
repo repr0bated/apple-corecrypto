@@ -12,10 +12,10 @@ jobs:
     
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v4.0.0  # Pin to a specific version for consistency
     
     - name: Set up Xcode
-      uses: maxim-lobanov/setup-xcode@v1
+      uses: maxim-lobanov/setup-xcode@v1.0.0  # Pin to a specific version
       with:
         xcode-version: latest
     
@@ -24,7 +24,7 @@ jobs:
     
     - name: Build CoreCrypto
       run: |
-        cd apple-corecrypto
+        cd "${{ github.workspace }}"
         xcodebuild clean build \
           -project corecrypto.xcodeproj \
           -scheme corecrypto \
@@ -38,7 +38,7 @@ jobs:
     
     - name: Build Dynamic Library
       run: |
-        cd apple-corecrypto
+        cd "${{ github.workspace }}"
         xcodebuild clean build \
           -project corecrypto.xcodeproj \
           -scheme corecrypto_dylib \
@@ -51,7 +51,7 @@ jobs:
           OTHER_CFLAGS="-fembed-bitcode"
     
     - name: Upload Build Artifacts
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v4.0.0  # Pin to a specific version
       with:
         name: corecrypto-build
         path: |
@@ -64,16 +64,16 @@ jobs:
     
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v4.0.0  # Pin to a specific version
     
     - name: Set up Xcode
-      uses: maxim-lobanov/setup-xcode@v1
+      uses: maxim-lobanov/setup-xcode@v1.0.0  # Pin to a specific version
       with:
         xcode-version: latest
     
     - name: Run Xcode Analyze
       run: |
-        cd apple-corecrypto
+        cd "${{ github.workspace }}"
         xcodebuild clean analyze \
           -project corecrypto.xcodeproj \
           -scheme corecrypto \
