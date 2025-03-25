@@ -1,0 +1,55 @@
+name: Build CoreCrypto
+
+on:
+  push:
+    branches: [ main, repr0bated ]
+  pull_request:
+    branches: [ main, repr0bated ]
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Xcode
+      uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: latest
+
+    - name: Build CoreCrypto
+      run: |
+        cd "${{ github.workspace }}"
+        xcodebuild clean build \
+          -project corecrypto.xcodeproj \
+          -scheme corecrypto \
+          -sdk macosx \
+          -configuration Debug \
+          ARCHS="arm64 x86_64" \
+          VALID_ARCHS="arm64 x86_64" \
+          ONLY_ACTIVE_ARCH=NO \
+          MACOSX_DEPLOYMENT_TARGET=13.0
+
+    - name: Build Dynamic Library
+      run: |
+        cd "${{ github.workspace }}"
+        xcodebuild clean build \
+          -project corecrypto.xcodeproj \
+          -scheme corecrypto_dylib \
+          -sdk macosx \
+          -configuration Debug \
+          ARCHS="arm64 x86_64" \
+          VALID_ARCHS="arm64 x86_64" \
+          ONLY_ACTIVE_ARCH=NO \
+          MACOSX_DEPLOYMENT_TARGET=13.0
+
+    - name: Upload Build Artifacts
+      uses: actions/upload-artifact@v3.1.2
+      with:
+        name: corecrypto-build
+        path: |
+          apple-corecrypto/build
+          apple-corecrypto/DerivedData
+        retention-days: 5
