@@ -9,19 +9,19 @@ on:
 jobs:
   build:
     runs-on: macos-latest
-    
+
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4.0.0  # Pin to a specific version for consistency
-    
+      uses: actions/checkout@v4  # Updated to use latest version
+
     - name: Set up Xcode
-      uses: maxim-lobanov/setup-xcode@v1.0.0  # Pin to a specific version
+      uses: maxim-lobanov/setup-xcode@v2  # Updated to a newer version
       with:
         xcode-version: latest
-    
+
     - name: List Available Simulators
       run: xcrun simctl list devices
-    
+
     - name: Build CoreCrypto
       run: |
         cd "${{ github.workspace }}"
@@ -51,7 +51,7 @@ jobs:
           OTHER_CFLAGS="-fembed-bitcode"
     
     - name: Upload Build Artifacts
-      uses: actions/upload-artifact@v4.0.0  # Pin to a specific version
+      uses: actions/upload-artifact@v4  # Updated to use latest version
       with:
         name: corecrypto-build
         path: |
@@ -61,16 +61,16 @@ jobs:
 
   static-analysis:
     runs-on: macos-latest
-    
+
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4.0.0  # Pin to a specific version
-    
+      uses: actions/checkout@v4  # Updated to use latest version
+
     - name: Set up Xcode
-      uses: maxim-lobanov/setup-xcode@v1.0.0  # Pin to a specific version
+      uses: maxim-lobanov/setup-xcode@v2  # Updated to a newer version
       with:
         xcode-version: latest
-    
+
     - name: Run Xcode Analyze
       run: |
         cd "${{ github.workspace }}"
