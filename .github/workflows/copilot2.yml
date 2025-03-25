@@ -73,4 +73,10 @@ jobs:
     
     - name: Run Xcode Analyze
       run: |
-        cd "${{ github.workspace](#) ▋
+        cd "${{ github.workspace }}"
+        xcodebuild clean analyze \
+          -project corecrypto.xcodeproj \
+          -scheme corecrypto \
+          -sdk macosx \
+          ARCHS="arm64 x86_64" \
+          VALID_ARCHS="arm64 x86_64"
