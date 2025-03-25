@@ -1,4 +1,4 @@
-name: CoreCrypto Build
+name: CoreCrypto Builds
 
 on:
   push:
