@@ -29,4 +29,54 @@ jobs:
           -project corecrypto.xcodeproj \
           -scheme corecrypto \
           -sdk macosx \
-          -configuration](#) ▋
+          -configuration Debug \
+          ARCHS="arm64 x86_64" \
+          VALID_ARCHS="arm64 x86_64" \
+          ONLY_ACTIVE_ARCH=NO \
+          MACOSX_DEPLOYMENT_TARGET=13.0 \
+          OTHER_CFLAGS="-fembed-bitcode"
+    
+    - name: Build Dynamic Library
+      run: |
+        cd "${{ github.workspace }}"
+        xcodebuild clean build \
+          -project corecrypto.xcodeproj \
+          -scheme corecrypto_dylib \
+          -sdk macosx \
+          -configuration Debug \
+          ARCHS="arm64 x86_64" \
+          VALID_ARCHS="arm64 x86_64" \
+          ONLY_ACTIVE_ARCH=NO \
+          MACOSX_DEPLOYMENT_TARGET=13.0 \
+          OTHER_CFLAGS="-fembed-bitcode"
+    
+    - name: Upload Build Artifacts
+      uses: actions/upload-artifact@v4.0.0  # Pin to a specific version
+      with:
+        name: corecrypto-build
+        path: |
+          apple-corecrypto/build
+          apple-corecrypto/DerivedData
+        retention-days: 5
+
+  static-analysis:
+    runs-on: macos-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4.0.0  # Pin to a specific version
+    
+    - name: Set up Xcode
+      uses: maxim-lobanov/setup-xcode@v1.0.0  # Pin to a specific version
+      with:
+        xcode-version: latest
+    
+    - name: Run Xcode Analyze
+      run: |
+        cd "${{ github.workspace }}"
+        xcodebuild clean analyze \
+          -project corecrypto.xcodeproj \
+          -scheme corecrypto \
+          -sdk macosx \
+          ARCHS="arm64 x86_64" \
+          VALID_ARCHS="arm64 x86_64"
